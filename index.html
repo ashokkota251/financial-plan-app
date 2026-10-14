@@ -352,12 +352,14 @@ const KEY_LOCAL='ffp:data';
 let READONLY=false;
 async function localApi(method,body){
   if(method==='GET'){
-    // 1) data/data.json committed in the repo → view-only
+    // 1) this browser's saved data
+    let d=null;try{d=JSON.parse(lsGet(KEY_LOCAL)||'null')}catch(e){}
+    if(d)return {data:d,storage:'browser'};
+    // 2) first visit: start from data/data.json in the repo (if any)
     try{const r=await fetch('data/data.json?t='+Date.now(),{cache:'no-store'});
-      if(r.ok){const d=await r.json();if(d&&typeof d==='object'){READONLY=true;return {data:d,storage:'repo'}}}}catch(e){}
-    // 2) fallback: this browser
-    let d=null;try{d=JSON.parse(lsGet(KEY_LOCAL)||'null')}catch(e){}return {data:d,storage:'browser'}}
-  if(READONLY)return {ok:true,updatedAt:body.data.updatedAt};
+      if(r.ok){const j=await r.json();if(j&&typeof j==='object')return {data:j,storage:'browser'}}}catch(e){}
+    return {data:null,storage:'browser'};
+  }
   const data={...body.data,updatedAt:new Date().toISOString()};
   try{localStorage.setItem(KEY_LOCAL,JSON.stringify(data))}catch(e){throw new Error('Browser storage is full or blocked')}
   return {ok:true,updatedAt:data.updatedAt};
@@ -478,7 +480,6 @@ function renderShell(){
       <button class="btn primary sm addTop" data-action="add">+ Add saving</button>
     </div>
   </div></header>
-  <div class="ro-banner"><div class="note-box">View only — data from <b>data/data.json</b> in the repo. To update: run <b>node server.js</b> on your PC, add savings, then <b>git push</b>.</div></div>
   <main id="view"></main>
   <button class="fab" data-action="add" aria-label="Add saving"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
   <nav class="bnav" aria-label="Sections">${TABS.map(([id,l,ic])=>`<button data-action="tab" data-id="${id}" aria-current="${tab===id}"><svg viewBox="0 0 24 24" fill="currentColor">${ic}</svg>${l.split(' ')[0]}</button>`).join('')}</nav>`;
