@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Full Feature Plan</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f3eee4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f5f45'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' fill='%23f3eee4' text-anchor='middle'%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3eee4; --paper:#fbf8f2; --paper-2:#f6f1e7; --ink:#1d2a24; --ink-2:#5b6661; --ink-3:#8b938e;
+  --line:#e3dbcc; --rule:rgba(31,95,69,.055);
+  --accent:#1f5f45; --accent-soft:#e2ede6; --accent-2:#c2622d; --accent-2-soft:#f6e6da;
+  --good:#2e7d4f; --warn:#a86b00; --warn-soft:#fbefd6; --bad:#b23b2e; --bad-soft:#f7e1dd;
+  --shadow:0 1px 0 rgba(29,42,36,.04),0 8px 24px -12px rgba(29,42,36,.18);
+  --r:14px;
+  --f-display:'Fraunces',Georgia,serif; --f-body:'Instrument Sans',system-ui,sans-serif; --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#111714; --paper:#18201c; --paper-2:#1d2621; --ink:#ece6d9; --ink-2:#a3aca6; --ink-3:#6f7a74;
+    --line:#2a3530; --rule:rgba(95,180,138,.05);
+    --accent:#62b68c; --accent-soft:#1f3329; --accent-2:#e38b57; --accent-2-soft:#3a271c;
+    --good:#62b68c; --warn:#e0a83a; --warn-soft:#3a2f17; --bad:#e2766a; --bad-soft:#3b211d;
+    --shadow:0 1px 0 rgba(0,0,0,.2),0 10px 28px -14px rgba(0,0,0,.6); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111714; --paper:#18201c; --paper-2:#1d2621; --ink:#ece6d9; --ink-2:#a3aca6; --ink-3:#6f7a74;
+  --line:#2a3530; --rule:rgba(95,180,138,.05);
+  --accent:#62b68c; --accent-soft:#1f3329; --accent-2:#e38b57; --accent-2-soft:#3a271c;
+  --good:#62b68c; --warn:#e0a83a; --warn-soft:#3a2f17; --bad:#e2766a; --bad-soft:#3b211d;
+  --shadow:0 1px 0 rgba(0,0,0,.2),0 10px 28px -14px rgba(0,0,0,.6); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);
+  background-image:repeating-linear-gradient(to bottom,transparent 0 31px,var(--rule) 31px 32px);
+  color:var(--ink); font:15px/1.5 var(--f-body); -webkit-font-smoothing:antialiased;
+  min-height:100vh; padding-bottom:calc(84px + env(safe-area-inset-bottom));
+}
+@media (min-width:821px){body{padding-bottom:40px}}
+button,input,select,textarea{font:inherit;color:inherit}
+.num,.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+a{color:var(--accent)}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1120px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand h1{font:600 22px/1 var(--f-display);margin:0;letter-spacing:-.02em;white-space:nowrap}
+.brand h1 em{font-style:italic;color:var(--accent);font-weight:400}
+.brand small{color:var(--ink-3);font-size:12px;white-space:nowrap}
+.tabs{display:flex;gap:2px;margin-left:auto;background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:3px}
+.tabs button{border:0;background:none;padding:7px 14px;border-radius:999px;cursor:pointer;color:var(--ink-2);font-weight:500;font-size:14px}
+.tabs button[aria-current="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.top-actions{display:flex;gap:8px;align-items:center}
+.iconbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;cursor:pointer;color:var(--ink-2)}
+.iconbtn:hover{color:var(--ink)}
+.sync{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sync i{width:7px;height:7px;border-radius:50%;background:var(--good);display:inline-block}
+.sync[data-s="saving"] i{background:var(--warn);animation:pulse 1s infinite}
+.sync[data-s="error"] i{background:var(--bad)}
+.sync[data-s="error"]{color:var(--bad)}
+@keyframes pulse{50%{opacity:.3}}
+@media (max-width:820px){
+  .tabs{display:none}
+  .brand small{display:none}
+  .top-actions{margin-left:auto}
+  .top .addTop{display:none}
+}
+
+/* ---------- bottom nav (mobile) ---------- */
+.bnav{display:none}
+@media (max-width:820px){
+  .bnav{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;
+    background:var(--paper);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .bnav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:var(--ink-3);padding:4px 0;cursor:pointer}
+  .bnav button svg{width:22px;height:22px}
+  .bnav button[aria-current="true"]{color:var(--accent);font-weight:600}
+}
+
+/* ---------- layout ---------- */
+main{max-width:1120px;margin:0 auto;padding:22px 16px 40px}
+.view{animation:rise .35s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.grid{display:grid;gap:16px}
+.g-hero{grid-template-columns:1.35fr 1fr}
+.g-2{grid-template-columns:1fr 1fr}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:900px){.g-hero,.g-2{grid-template-columns:1fr}.g-4{grid-template-columns:1fr 1fr}.g-3{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.g-3{grid-template-columns:1fr}}
+.stack>*+*{margin-top:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px;min-width:0}
+.card h2,.card h3{margin:0}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.eyebrow{font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.h2{font:600 19px/1.2 var(--f-display);letter-spacing:-.01em}
+.sub{color:var(--ink-2);font-size:13px}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.pagehead h2{font:600 30px/1.05 var(--f-display);letter-spacing:-.025em;margin:4px 0 0}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:var(--accent);color:#f3eee4;border:0}
+:root[data-theme="dark"] .hero{background:#1c3b2d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hero{background:#1c3b2d}}
+.hero::after{content:"₹";position:absolute;right:-18px;bottom:-70px;font:700 260px/1 var(--f-display);opacity:.08;pointer-events:none}
+.hero .eyebrow{color:rgba(243,238,228,.7)}
+.big{font:600 clamp(36px,6vw,54px)/1 var(--f-display);letter-spacing:-.03em;margin:10px 0 6px}
+.hero-split{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid rgba(243,238,228,.18)}
+.hero-split div{min-width:110px}
+.hero-split b{display:block;font:500 15px var(--f-mono)}
+.hero-split span{font-size:12px;opacity:.75;display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:2px;display:inline-block;flex:none}
+
+/* stats */
+.stat .v{font:600 22px/1.15 var(--f-mono);letter-spacing:-.02em;margin-top:8px}
+.stat .d{font-size:12.5px;color:var(--ink-2);margin-top:4px}
+
+/* progress */
+.bar{height:10px;background:var(--paper-2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.bar.thin{height:6px}
+.ring-wrap{display:flex;align-items:center;gap:18px}
+.ring{flex:none}
+.ring circle{transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px}
+.kv dt{color:var(--ink-2)}
+.kv dd{margin:0;text-align:right;font-family:var(--f-mono)}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-done{background:var(--accent-soft);color:var(--good)}
+.p-progress{background:var(--warn-soft);color:var(--warn)}
+.p-planned{background:var(--accent-2-soft);color:var(--accent-2)}
+.p-todo{background:var(--paper-2);color:var(--ink-2);border:1px solid var(--line)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+
+/* steps */
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:grid;grid-template-columns:30px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1px dashed var(--line)}
+.steps li:first-child{border-top:0;padding-top:2px}
+.stepn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:600 13px var(--f-mono);border:1.5px solid var(--line);color:var(--ink-2)}
+.stepn.done{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.stepn.progress{border-color:var(--warn);color:var(--warn)}
+.steps .t{font-weight:600}
+.steps .n{font-size:12.5px;color:var(--ink-2)}
+
+/* events */
+.events{list-style:none;margin:0;padding:0}
+.events li{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:10px 0;border-top:1px dashed var(--line);align-items:center}
+.events li:first-child{border-top:0;padding-top:0}
+.cal{border:1px solid var(--line);border-radius:10px;text-align:center;overflow:hidden;background:var(--paper-2)}
+.cal b{display:block;font:600 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;background:var(--accent-2);color:#fff;padding:4px 0}
+.cal span{display:block;font:600 18px/1.4 var(--f-display)}
+.events .t{font-weight:600;font-size:14px}
+.events .n{font-size:12.5px;color:var(--ink-2)}
+
+/* chart */
+.chart-wrap{overflow-x:auto;margin:0 -4px}
+.chart{display:block;width:100%;min-width:560px;height:auto}
+.chart text{font:10.5px var(--f-mono);fill:var(--ink-3)}
+.chart .grid-l{stroke:var(--line);stroke-dasharray:2 3}
+.chart .col:hover rect.seg{filter:brightness(1.12)}
+.chart .col .hit{fill:transparent}
+.chart .col:hover .hit{fill:var(--paper-2)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:6px}
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:var(--paper);padding:8px 10px;border-radius:8px;font-size:12px;line-height:1.5;box-shadow:var(--shadow);opacity:0;transition:opacity .12s;max-width:240px}
+.tip.on{opacity:1}
+.tip b{font-family:var(--f-mono)}
+
+/* tables */
+.tw{overflow-x:auto;margin:0 -18px;padding:0 18px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;border-bottom:1px dashed var(--line);vertical-align:middle;white-space:nowrap}
+td.r,th.r{text-align:right}
+tr.total td{border-top:1.5px solid var(--ink);border-bottom:0;font-weight:600}
+tr.muted td{color:var(--ink-3)}
+tr.now td{background:var(--accent-soft)}
+td input,td select{width:100%;min-width:80px}
+
+/* log */
+.month{padding:0;overflow:hidden}
+.month-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;background:var(--paper-2);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.month-h .h2{font-size:18px}
+.month-h .meta{display:flex;gap:16px;font-size:12.5px;color:var(--ink-2);align-items:center;flex-wrap:wrap}
+.month-h .meta b{font-family:var(--f-mono);color:var(--ink);font-weight:600}
+.entry{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:12px 18px;border-top:1px dashed var(--line)}
+.entry:first-of-type{border-top:0}
+.entry .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-2)}
+.entry .note{font-size:14px;margin-top:2px;overflow-wrap:anywhere}
+.entry .fdm{font:12px var(--f-mono);color:var(--ink-3);margin-top:3px}
+.entry .amt{font:600 15px var(--f-mono)}
+.row-actions{display:flex;gap:4px}
+.row-actions button{border:0;background:none;color:var(--ink-3);cursor:pointer;padding:6px;border-radius:8px}
+.row-actions button:hover{background:var(--paper-2);color:var(--ink)}
+@media (max-width:520px){.entry{grid-template-columns:1fr auto}.entry .row-actions{grid-column:1/-1;justify-content:flex-end;margin-top:-6px}}
+
+/* forms */
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--paper);padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;color:var(--ink);white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label{font-size:12px;font-weight:600;color:var(--ink-2)}
+.field .hint{font-size:11.5px;color:var(--ink-3)}
+input[type=text],input[type=number],input[type=month],input[type=date],input[type=password],select,textarea{
+  background:var(--paper-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;min-width:0;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input[type=color]{width:40px;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--paper-2);padding:3px;cursor:pointer}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid .full{grid-column:1/-1}
+@media (max-width:520px){.form-grid{grid-template-columns:1fr}}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toolbar select{width:auto}
+.fab{display:none}
+@media (max-width:820px){.fab{display:grid;place-items:center;position:fixed;right:16px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:31;width:54px;height:54px;border-radius:16px;border:0;background:var(--accent-2);color:#fff;box-shadow:0 10px 24px -8px rgba(194,98,45,.6);cursor:pointer}}
+.empty{text-align:center;padding:36px 16px;color:var(--ink-2)}
+.empty .h2{margin-bottom:6px}
+.note-box{font-size:12.5px;color:var(--ink-2);background:var(--paper-2);border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.warn-box{font-size:12.5px;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:10px 12px}
+
+/* dialog */
+dialog{border:0;padding:0;border-radius:18px;background:var(--paper);color:var(--ink);width:min(560px,calc(100vw - 24px));box-shadow:0 30px 80px -20px rgba(0,0,0,.45)}
+dialog::backdrop{background:rgba(17,23,20,.45);backdrop-filter:blur(3px)}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 0}
+.dlg-b{padding:16px 20px}
+.dlg-f{display:flex;justify-content:flex-end;gap:8px;padding:0 20px 20px}
+.fd-only{display:contents}
+.fd-only[hidden]{display:none}
+
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:16px}
+.login .card{width:min(400px,100%);padding:28px}
+.login h1{font:600 30px/1.05 var(--f-display);letter-spacing:-.025em;margin:6px 0 4px}
+.login h1 em{color:var(--accent);font-weight:400}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+.loading{min-height:60vh;display:grid;place-items:center;color:var(--ink-3)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="tip" id="tip"></div>
+
+<dialog id="dlg">
+  <form id="entryForm" method="dialog">
+    <div class="dlg-h"><div><div class="eyebrow">Monthly log</div><div class="h2" id="dlgTitle">Add saving</div></div>
+      <button type="button" class="iconbtn" data-action="close" aria-label="Close">✕</button></div>
+    <div class="dlg-b">
+      <div class="form-grid">
+        <div class="field"><label for="f_month">Month</label><input type="month" id="f_month" required></div>
+        <div class="field"><label for="f_bucket">Where</label><select id="f_bucket"></select></div>
+        <div class="field full"><label for="f_amount">Amount (₹)</label><input type="number" id="f_amount" min="1" step="1" inputmode="numeric" required placeholder="e.g. 50000"></div>
+        <div class="field full"><label for="f_note">Note</label><input type="text" id="f_note" placeholder="e.g. FD #2 — HDFC 1 year"></div>
+        <div class="fd-only" id="fdFields">
+          <div class="field"><label for="f_bank">Bank</label><input type="text" id="f_bank" placeholder="HDFC / SBI / ICICI"></div>
+          <div class="field"><label for="f_maturity">Maturity date</label><input type="date" id="f_maturity"></div>
+        </div>
+      </div>
+    </div>
+    <div class="dlg-f">
+      <button type="button" class="btn" data-action="close">Cancel</button>
+      <button type="submit" class="btn primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= utils ================= */
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const $=s=>document.querySelector(s);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
+const inr=n=>(n<0?'-':'')+'₹'+Math.round(Math.abs(n)).toLocaleString('en-IN');
+const short=n=>{const a=Math.abs(n),s=n<0?'-':'';
+  if(a>=1e7)return s+'₹'+trim(a/1e7)+' Cr'; if(a>=1e5)return s+'₹'+trim(a/1e5)+' L'; if(a>=1e3)return s+'₹'+trim(a/1e3)+'k'; return s+'₹'+Math.round(a)};
+const trim=x=>(Math.round(x*100)/100).toString();
+const pct=(a,b)=>b>0?Math.max(0,Math.min(100,a/b*100)):0;
+const ym=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+const addM=(m,n)=>{let[y,mo]=m.split('-').map(Number);const t=y*12+(mo-1)+n;return `${Math.floor(t/12)}-${String(t%12+1).padStart(2,'0')}`};
+const mDiff=(a,b)=>{const[ay,am]=a.split('-').map(Number),[by,bm]=b.split('-').map(Number);return (by*12+bm)-(ay*12+am)};
+const mLabel=m=>{if(!m)return '—';const[y,mo]=m.split('-');return `${MONTHS[+mo-1]} ${y}`};
+const dLabel=d=>{if(!d)return '—';const x=new Date(d+'T00:00:00');return isNaN(x)?'—':`${String(x.getDate()).padStart(2,'0')} ${MONTHS[x.getMonth()]} ${x.getFullYear()}`};
+const daysTo=d=>{const x=new Date(d+'T00:00:00');const t=new Date();t.setHours(0,0,0,0);return Math.round((x-t)/864e5)};
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+
+/* ================= seed (empty) ================= */
+const SEED=()=>({
+  version:1,
+  settings:{salary:0,fdMultiplier:4,sipMonthly:0,fdStart:ym(),sipStart:ym(),fdPlanMonths:12,sipPlanMonths:12},
+  buckets:[
+    {id:'fd',name:'Emergency FD',color:'#1f5f45',target:0,core:true},
+    {id:'es',name:'Emergency Savings',color:'#c2622d',target:0,core:true},
+    {id:'sip',name:'SIP / Mutual Funds',color:'#3a6ea5',target:0,core:true}
+  ],
+  entries:[],
+  steps:[
+    {id:'s1',name:'Life Insurance',status:'todo',note:'',target:0,link:''},
+    {id:'s2',name:'Health Insurance',status:'todo',note:'',target:0,link:''},
+    {id:'s3',name:'Emergency FD',status:'todo',note:'',target:0,link:'fd'},
+    {id:'s4',name:'Emergency Savings',status:'todo',note:'',target:0,link:'es'},
+    {id:'s5',name:'SIP / Mutual Funds',status:'todo',note:'',target:0,link:''}
+  ],
+  sip:{funds:[],currentValue:0,valueDate:''},
+  insurance:{
+    life:{policy:'',cover:0,premium:0,renewal:'',nominee:''},
+    health:{bought:false,company:'',cover:0,superTopUp:0,premium:0,planMonth:'',renewal:''}
+  }
+});
+const STATUS={done:'Done',progress:'In progress',planned:'Planned',todo:'Not started'};
+
+function normalize(d){
+  const s=SEED(); d=d&&typeof d==='object'?d:{};
+  return {
+    ...s,...d,
+    settings:{...s.settings,...(d.settings||{})},
+    buckets:Array.isArray(d.buckets)&&d.buckets.length?d.buckets:s.buckets,
+    entries:Array.isArray(d.entries)?d.entries:s.entries,
+    steps:Array.isArray(d.steps)?d.steps:s.steps,
+    sip:{...s.sip,...(d.sip||{}),funds:Array.isArray(d.sip?.funds)?d.sip.funds:s.sip.funds},
+    insurance:{life:{...s.insurance.life,...(d.insurance?.life||{})},health:{...s.insurance.health,...(d.insurance?.health||{})}}
+  };
+}
+
+/* ================= server sync ================= */
+const KEY_PW='ffp:key', KEY_CACHE='ffp:cache', KEY_TAB='ffp:tab', KEY_THEME='ffp:theme';
+let S=null, syncState='ok', syncMsg='Saved', saveTimer=null, storageKind='';
+async function api(method,body){
+  const r=await fetch('/api/data',{method,headers:{'content-type':'application/json','x-app-key':lsGet(KEY_PW)||''},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+  let j={}; try{j=await r.json()}catch(e){}
+  if(!r.ok){const e=new Error(j.error||('HTTP '+r.status));e.status=r.status;throw e}
+  return j;
+}
+function setSync(s,msg){syncState=s;syncMsg=msg;const el=$('#sync');if(el){el.dataset.s=s;el.lastChild.textContent=msg}}
+function save(){
+  lsSet(KEY_CACHE,JSON.stringify(S));
+  setSync('saving','Saving…');
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(flush,500);
+}
+async function flush(){
+  try{const r=await api('PUT',{data:S});S.updatedAt=r.updatedAt;lsSet(KEY_CACHE,JSON.stringify(S));setSync('ok','Saved');}
+  catch(e){if(e.status===401){logout('Session expired — enter password again.');return}
+    setSync('error','Not saved — retrying');clearTimeout(saveTimer);saveTimer=setTimeout(flush,5000);}
+}
+window.addEventListener('beforeunload',e=>{if(syncState!=='ok'){e.preventDefault();e.returnValue=''}});
+
+async function boot(){
+  applyTheme();
+  if(!lsGet(KEY_PW))return renderLogin();
+  $('#app').innerHTML='<div class="loading">Loading your plan…</div>';
+  try{
+    const r=await api('GET'); storageKind=r.storage||'';
+    if(r.data){S=normalize(r.data)}
+    else{S=SEED();await api('PUT',{data:S})}
+    lsSet(KEY_CACHE,JSON.stringify(S));
+    renderShell();
+  }catch(e){
+    if(e.status===401)return logout('Wrong password.');
+    if(e.status===500&&/APP_PASSWORD/.test(e.message))return renderLogin(e.message);
+    const cached=lsGet(KEY_CACHE);
+    if(cached){S=normalize(JSON.parse(cached));renderShell();setSync('error','Offline — showing last copy');}
+    else renderLogin('Cannot reach server: '+e.message);
+  }
+}
+function logout(msg){lsSet(KEY_PW,null);renderLogin(msg)}
+
+function renderLogin(msg=''){
+  $('#app').innerHTML=`<div class="login"><form class="card" id="loginForm">
+    <div class="eyebrow">Personal savings ledger</div>
+    <h1>Full Feature <em>Plan</em></h1>
+    <p class="sub" style="margin:0 0 18px">Enter your app password to open your plan.</p>
+    <div class="field"><label for="pw">Password</label><input type="password" id="pw" autocomplete="current-password" required autofocus></div>
+    <div class="err" style="margin:8px 0">${esc(msg)}</div>
+    <button class="btn primary" style="width:100%;justify-content:center">Open</button>
+  </form></div>`;
+  $('#loginForm').addEventListener('submit',e=>{e.preventDefault();lsSet(KEY_PW,$('#pw').value);boot()});
+}
+
+/* ================= derived numbers ================= */
+const bucket=id=>S.buckets.find(b=>b.id===id)||{id,name:id,color:'#888'};
+const fdTarget=()=>num(S.settings.salary)*num(S.settings.fdMultiplier);
+const bucketTarget=b=>b.id==='fd'?fdTarget():num(b.target);
+const sumBucket=(id,upto)=>S.entries.reduce((a,e)=>a+((e.bucket===id&&(!upto||e.month<=upto))?num(e.amount):0),0);
+const sumMonth=m=>S.entries.reduce((a,e)=>a+(e.month===m?num(e.amount):0),0);
+const sipInvested=()=>sumBucket('sip');
+const sipValue=()=>num(S.sip.currentValue)>0?num(S.sip.currentValue):sipInvested();
+function totals(){
+  const by={};S.buckets.forEach(b=>by[b.id]=sumBucket(b.id));
+  by.sip=sipValue();
+  const total=Object.values(by).reduce((a,b)=>a+b,0);
+  return {by,total};
+}
+const sortedEntries=()=>[...S.entries].sort((a,b)=>b.month.localeCompare(a.month)||(b.ts||0)-(a.ts||0));
+function stepProgress(st){
+  if(st.link){const b=bucket(st.link);const t=bucketTarget(b);return {saved:sumBucket(st.link),target:t}}
+  return {saved:null,target:num(st.target)};
+}
+function fdPlan(){
+  const t=fdTarget(), saved=sumBucket('fd'), need=Math.max(0,t-saved);
+  const deadline=addM(S.settings.fdStart,num(S.settings.fdPlanMonths)-1);
+  const cur=ym();
+  let monthsLeft = cur<S.settings.fdStart ? mDiff(S.settings.fdStart,deadline)+1 : mDiff(cur,deadline);
+  monthsLeft=Math.max(1,monthsLeft);
+  return {t,saved,need,deadline,monthsLeft,perMonth:need/monthsLeft};
+}
+function events(){
+  const ev=[], ins=S.insurance;
+  if(ins.life.renewal)ev.push({d:ins.life.renewal,t:'Life insurance renewal',n:`${ins.life.policy||'Policy'} · premium ${inr(num(ins.life.premium))}`});
+  if(!ins.health.bought&&ins.health.planMonth)ev.push({d:ins.health.planMonth+'-01',t:'Buy health insurance',n:`Cover ${short(num(ins.health.cover))} + super top-up ${short(num(ins.health.superTopUp))}`,m:true});
+  if(ins.health.bought&&ins.health.renewal)ev.push({d:ins.health.renewal,t:'Health insurance renewal',n:`${ins.health.company||'Policy'} · premium ${inr(num(ins.health.premium))}`});
+  const p=fdPlan(); if(p.t>0&&p.need>0)ev.push({d:p.deadline+'-01',t:'Emergency FD target date',n:`${short(p.need)} still needed`,m:true});
+  if(sipInvested()===0&&num(S.settings.sipMonthly)>0)ev.push({d:S.settings.sipStart+'-01',t:'Start SIP',n:`${inr(num(S.settings.sipMonthly))}/month`,m:true});
+  S.entries.filter(e=>e.bucket==='fd'&&e.fd?.maturity).forEach(e=>ev.push({d:e.fd.maturity,t:`FD matures${e.fd.bank?' — '+e.fd.bank:''}`,n:inr(num(e.amount))}));
+  return ev.filter(x=>daysTo(x.d)>=-31).sort((a,b)=>a.d.localeCompare(b.d));
+}
+
+/* ================= shell ================= */
+const TABS=[
+  ['overview','Overview','<path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/>'],
+  ['log','Monthly log','<path d="M4 5h16M4 12h16M4 19h10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>'],
+  ['fd','FDs','<path d="M3 10l9-6 9 6M5 10v8m4-8v8m6-8v8m4-8v8M3 20h18" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'],
+  ['sip','SIP','<path d="M3 17l6-6 4 4 8-8M15 7h6v6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'],
+  ['plan','Plan','<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/>'],
+  ['settings','Settings','<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.1 2.1m10 10l2.1 2.1M4.9 19.1L7 17m10-10l2.1-2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>']
+];
+let tab=lsGet(KEY_TAB)||'overview'; if(!TABS.some(t=>t[0]===tab))tab='overview';
+let logFilter={bucket:'all',year:'all'};
+
+function renderShell(){
+  $('#app').innerHTML=`
+  <header class="top"><div class="top-in">
+    <div class="brand"><h1>Full Feature <em>Plan</em></h1><small>Personal savings ledger</small></div>
+    <nav class="tabs" aria-label="Sections">${TABS.map(([id,l])=>`<button data-action="tab" data-id="${id}" aria-current="${tab===id}">${l}</button>`).join('')}</nav>
+    <div class="top-actions">
+      <span class="sync" id="sync" data-s="${syncState}"><i></i>${esc(syncMsg)}</span>
+      <button class="iconbtn" data-action="theme" aria-label="Toggle theme" title="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
+      <button class="btn primary sm addTop" data-action="add">+ Add saving</button>
+    </div>
+  </div></header>
+  <main id="view"></main>
+  <button class="fab" data-action="add" aria-label="Add saving"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+  <nav class="bnav" aria-label="Sections">${TABS.map(([id,l,ic])=>`<button data-action="tab" data-id="${id}" aria-current="${tab===id}"><svg viewBox="0 0 24 24" fill="currentColor">${ic}</svg>${l.split(' ')[0]}</button>`).join('')}</nav>`;
+  render();
+}
+function render(){
+  document.querySelectorAll('[data-action="tab"]').forEach(b=>b.setAttribute('aria-current',b.dataset.id===tab));
+  const v=$('#view'); if(!v)return;
+  const y=window.scrollY;
+  v.innerHTML=`<div class="view">${({overview:vOverview,log:vLog,fd:vFD,sip:vSIP,plan:vPlan,settings:vSettings})[tab]()}</div>`;
+  window.scrollTo(0,y);
+}
+
+/* ================= views ================= */
+function ring(p,size=112,stroke=10,color='var(--accent)'){
+  const r=(size-stroke)/2,c=2*Math.PI*r,off=c*(1-p/100);
+  return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--paper-2)" stroke-width="${stroke}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 ${size/2} ${size/2})"/>
+    <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" style="font:600 22px var(--f-display);fill:var(--ink)">${Math.round(p)}%</text></svg>`;
+}
+
+function vOverview(){
+  const {by,total}=totals(), p=fdPlan(), cur=ym(), sal=num(S.settings.salary);
+  const thisMonth=sumMonth(cur), rate=sal?thisMonth/sal*100:0;
+  const invested=sipInvested(), gain=sipValue()-invested;
+  const ev=events().slice(0,6);
+  return `
+  <div class="grid g-hero">
+    <section class="card hero">
+      <div class="eyebrow">Total savings · ${mLabel(cur)}</div>
+      <div class="big num">${inr(total)}</div>
+      <div style="opacity:.8;font-size:14px">${sal?`≈ ${trim(total/sal)} months of salary saved`:''}</div>
+      <div class="hero-split">${S.buckets.map(b=>`<div><span><i class="dot" style="background:${b.color}"></i>${esc(b.name)}</span><b>${short(by[b.id]||0)}</b></div>`).join('')}</div>
+    </section>
+    <section class="card">
+      <div class="card-h"><div><div class="eyebrow">Step 3</div><div class="h2">Emergency FD</div></div><span class="pill ${!p.t?'p-todo':p.need>0?'p-progress':'p-done'}">${!p.t?'Set salary':p.need>0?'Building':'Complete'}</span></div>
+      <div class="ring-wrap">${ring(pct(p.saved,p.t))}
+        <dl class="kv" style="flex:1">
+          <dt>Saved</dt><dd>${inr(p.saved)}</dd>
+          <dt>Target</dt><dd>${inr(p.t)}</dd>
+          <dt>Still needed</dt><dd style="color:var(--accent-2)">${inr(p.need)}</dd>
+        </dl></div>
+      ${p.need>0?`<div class="note-box" style="margin-top:14px">Add <b class="num">${inr(p.perMonth)}</b>/month for ${p.monthsLeft} month${p.monthsLeft>1?'s':''} to finish by <b>${mLabel(p.deadline)}</b>${sal?` — ${Math.round(p.perMonth/sal*100)}% of salary`:''}.</div>`:''}
+    </section>
+  </div>
+
+  <div class="grid g-4" style="margin-top:16px">
+    <div class="card stat"><div class="eyebrow">Saved this month</div><div class="v">${inr(thisMonth)}</div><div class="d">${rate?Math.round(rate)+'% of in-hand salary':'Nothing logged yet'}</div></div>
+    <div class="card stat"><div class="eyebrow">Emergency savings</div><div class="v">${inr(by.es||0)}</div><div class="d">${pct(by.es||0,bucketTarget(bucket('es')))>=100?'Target met ✓':'of '+inr(bucketTarget(bucket('es')))}</div></div>
+    <div class="card stat"><div class="eyebrow">SIP value</div><div class="v">${inr(sipValue())}</div><div class="d">${invested?`${gain>=0?'+':''}${inr(gain)} on ${short(invested)}`:'Starts '+mLabel(S.settings.sipStart)}</div></div>
+    <div class="card stat"><div class="eyebrow">FDs active</div><div class="v">${S.entries.filter(e=>e.bucket==='fd').length}</div><div class="d">${short(by.fd||0)} principal</div></div>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <div class="card-h"><div><div class="eyebrow">Every month</div><div class="h2">Where the money went</div></div>
+      <div class="legend">${S.buckets.map(b=>`<span><i class="dot" style="background:${b.color}"></i>${esc(b.name)}</span>`).join('')}</div></div>
+    <div class="chart-wrap">${chartSVG()}</div>
+  </section>
+
+  <div class="grid g-2" style="margin-top:16px">
+    <section class="card">
+      <div class="card-h"><div><div class="eyebrow">The plan</div><div class="h2">My steps</div></div><button class="btn sm" data-action="tab" data-id="plan">Edit</button></div>
+      <ol class="steps">${S.steps.map((st,i)=>{const g=stepProgress(st);return `<li>
+        <span class="stepn ${st.status}">${st.status==='done'?'✓':i+1}</span>
+        <div style="min-width:0"><div class="t">${esc(st.name)}</div><div class="n">${esc(st.note)||'&nbsp;'}</div>
+          ${g.saved!==null&&g.target?`<div class="bar thin" style="margin-top:6px"><i style="width:${pct(g.saved,g.target)}%;background:${bucket(st.link).color}"></i></div>`:''}</div>
+        <div style="text-align:right"><span class="pill p-${st.status}">${STATUS[st.status]||st.status}</span><div class="n num" style="margin-top:4px">${g.target?short(g.target):''}</div></div>
+      </li>`}).join('')}</ol>
+    </section>
+    <section class="card">
+      <div class="card-h"><div><div class="eyebrow">Coming up</div><div class="h2">Dates to remember</div></div></div>
+      ${ev.length?`<ul class="events">${ev.map(x=>{const dt=new Date(x.d+'T00:00:00'),dd=daysTo(x.d);return `<li>
+        <div class="cal"><b>${MONTHS[dt.getMonth()]} ${String(dt.getFullYear()).slice(2)}</b><span>${x.m?'—':dt.getDate()}</span></div>
+        <div><div class="t">${esc(x.t)}</div><div class="n">${esc(x.n)} · ${dd<0?`<span style="color:var(--bad)">${-dd} days ago</span>`:dd===0?'today':x.m?mLabel(x.d.slice(0,7)):`in ${dd} days`}</div></div></li>`}).join('')}</ul>`:'<p class="sub">Nothing scheduled.</p>'}
+    </section>
+  </div>`;
+}
+
+function chartMonths(){
+  const ms=S.entries.map(e=>e.month).sort();
+  let start=ms[0]&&ms[0]<S.settings.fdStart?ms[0]:S.settings.fdStart;
+  let end=[ym(),ms[ms.length-1]||ym()].sort()[1];
+  if(mDiff(start,end)<11)end=addM(start,11);
+  if(mDiff(start,end)>35)start=addM(end,-35);
+  const out=[];for(let m=start;m<=end;m=addM(m,1))out.push(m);return out;
+}
+function niceMax(v){const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+function chartSVG(){
+  const months=chartMonths(),W=760,H=270,pl=54,pr=10,pt=14,pb=34,iw=W-pl-pr,ih=H-pt-pb;
+  const data=months.map(m=>{const per=S.buckets.map(b=>({b,v:S.entries.filter(e=>e.month===m&&e.bucket===b.id).reduce((a,e)=>a+num(e.amount),0)}));return {m,per,total:per.reduce((a,x)=>a+x.v,0)}});
+  const max=niceMax(Math.max(1000,...data.map(d=>d.total)));
+  const bw=iw/months.length,barW=Math.min(30,bw*.6),cur=ym();
+  let g='';
+  for(let i=0;i<=4;i++){const y=pt+ih-ih*i/4;g+=`<line class="grid-l" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text x="${pl-8}" y="${y+3.5}" text-anchor="end">${short(max*i/4)}</text>`}
+  data.forEach((d,i)=>{
+    const x=pl+bw*i+(bw-barW)/2;let y=pt+ih;
+    let segs='';d.per.forEach(({b,v})=>{if(!v)return;const h=Math.max(1.5,v/max*ih);y-=h;segs+=`<rect class="seg" x="${x}" y="${y}" width="${barW}" height="${h}" fill="${b.color}" rx="2"/>`});
+    const [yy,mo]=d.m.split('-');const lbl=MONTHS[+mo-1]+((+mo===1||i===0)?" '"+yy.slice(2):'');
+    const showLbl=months.length<=18||i%2===0;
+    const tip=`<b>${mLabel(d.m)}</b> · ${inr(d.total)}`+d.per.filter(x=>x.v).map(x=>`<br>${esc(x.b.name)}: ${inr(x.v)}`).join('');
+    g+=`<g class="col" data-tip="${esc(tip)}"><rect class="hit" x="${pl+bw*i+1}" y="${pt}" width="${bw-2}" height="${ih}" rx="6"/>${segs}
+      ${showLbl?`<text x="${x+barW/2}" y="${H-12}" text-anchor="middle" ${d.m===cur?'style="fill:var(--accent);font-weight:600"':''}>${lbl}</text>`:''}</g>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly savings by bucket">${g}</svg>`;
+}
+
+function vLog(){
+  const years=[...new Set(S.entries.map(e=>e.month.slice(0,4)))].sort().reverse();
+  let list=sortedEntries().filter(e=>(logFilter.bucket==='all'||e.bucket===logFilter.bucket)&&(logFilter.year==='all'||e.month.startsWith(logFilter.year)));
+  const months=[...new Set(list.map(e=>e.month))];
+  // running total (all buckets, invested basis) up to each month
+  const running=m=>S.entries.reduce((a,e)=>a+(e.month<=m?num(e.amount):0),0);
+  const sal=num(S.settings.salary);
+  return `
+  <div class="pagehead"><div><div class="eyebrow">Every month</div><h2>Monthly log</h2></div>
+    <div class="toolbar">
+      <select data-filter="bucket" aria-label="Filter by bucket"><option value="all">All buckets</option>${S.buckets.map(b=>`<option value="${b.id}" ${logFilter.bucket===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select>
+      <select data-filter="year" aria-label="Filter by year"><option value="all">All years</option>${years.map(y=>`<option ${logFilter.year===y?'selected':''}>${y}</option>`).join('')}</select>
+      <button class="btn primary" data-action="add">+ Add saving</button>
+    </div></div>
+  ${months.length?`<div class="stack">${months.map(m=>{const es=list.filter(e=>e.month===m),t=es.reduce((a,e)=>a+num(e.amount),0);return `
+    <section class="card month">
+      <div class="month-h"><div class="h2">${mLabel(m)}</div>
+        <div class="meta"><span>Added <b>${inr(t)}</b></span>${sal?`<span>${Math.round(t/sal*100)}% of salary</span>`:''}<span>Total till date <b>${inr(running(m))}</b></span>
+        <button class="btn sm" data-action="add" data-month="${m}">+ Add</button></div></div>
+      ${es.map(e=>{const b=bucket(e.bucket);return `<div class="entry">
+        <div style="min-width:0"><span class="chip"><i class="dot" style="background:${b.color}"></i>${esc(b.name)}</span>
+          <div class="note">${esc(e.note)||'<span style="color:var(--ink-3)">No note</span>'}</div>
+          ${e.bucket==='fd'&&e.fd&&(e.fd.bank||e.fd.maturity)?`<div class="fdm">${[e.fd.bank,e.fd.maturity?'matures '+dLabel(e.fd.maturity):''].filter(Boolean).map(esc).join(' · ')}</div>`:''}</div>
+        <div class="amt">${inr(num(e.amount))}</div>
+        <div class="row-actions"><button data-action="edit" data-id="${e.id}" aria-label="Edit">✎</button><button data-action="del" data-id="${e.id}" aria-label="Delete">🗑</button></div>
+      </div>`}).join('')}
+    </section>`}).join('')}</div>`
+  :`<div class="card empty"><div class="h2">No savings logged${logFilter.bucket!=='all'||logFilter.year!=='all'?' for this filter':''}</div><p>Add what you saved this month — an FD, emergency savings top-up or SIP.</p><button class="btn primary" data-action="add">+ Add saving</button></div>`}`;
+}
+
+function vFD(){
+  const p=fdPlan(), fds=S.entries.filter(e=>e.bucket==='fd').sort((a,b)=>(a.fd?.maturity||'9').localeCompare(b.fd?.maturity||'9'));
+  const principal=fds.reduce((a,e)=>a+num(e.amount),0);
+  const nextM=fds.find(e=>e.fd?.maturity&&daysTo(e.fd.maturity)>=0);
+  const months=[];for(let i=0;i<num(S.settings.fdPlanMonths);i++)months.push(addM(S.settings.fdStart,i));
+  const extra=[...new Set(fds.map(e=>e.month))].filter(m=>!months.includes(m));
+  const allM=[...months,...extra].sort(), cur=ym();
+  return `
+  <div class="pagehead"><div><div class="eyebrow">Step 3 · add every month</div><h2>Emergency FD</h2></div>
+    <button class="btn primary" data-action="add" data-bucket="fd">+ Add FD</button></div>
+  <div class="grid g-4">
+    <div class="card stat"><div class="eyebrow">Target</div><div class="v">${inr(p.t)}</div><div class="d">Salary × ${num(S.settings.fdMultiplier)}</div></div>
+    <div class="card stat"><div class="eyebrow">Saved</div><div class="v">${inr(p.saved)}</div><div class="bar thin" style="margin-top:8px"><i style="width:${pct(p.saved,p.t)}%"></i></div></div>
+    <div class="card stat"><div class="eyebrow">Still needed</div><div class="v" style="color:var(--accent-2)">${inr(p.need)}</div><div class="d">${p.need>0?inr(p.perMonth)+'/mo till '+mLabel(p.deadline):'Target reached ✓'}</div></div>
+    <div class="card stat"><div class="eyebrow">Next maturity</div><div class="v" style="font-size:18px">${nextM?dLabel(nextM.fd.maturity):'—'}</div><div class="d">${nextM?inr(num(nextM.amount))+(nextM.fd.bank?' · '+esc(nextM.fd.bank):''):'Add maturity dates'}</div></div>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <div class="card-h"><div><div class="eyebrow">${fds.length} deposit${fds.length===1?'':'s'}</div><div class="h2">My FDs</div></div>
+      ${nextM?`<span class="pill p-planned">Next maturity ${dLabel(nextM.fd.maturity)}</span>`:''}</div>
+    ${fds.length?`<div class="tw"><table><thead><tr><th>Bank / note</th><th>Month</th><th class="r">Amount</th><th>Maturity</th><th></th></tr></thead><tbody>
+      ${fds.map(e=>{const d=e.fd?.maturity?daysTo(e.fd.maturity):null;return `<tr>
+        <td style="white-space:normal;min-width:160px"><b>${esc(e.fd?.bank)||'—'}</b><div class="sub">${esc(e.note)}</div></td>
+        <td>${mLabel(e.month)}</td><td class="r num">${inr(num(e.amount))}</td><td>${dLabel(e.fd?.maturity)}${d!==null?`<div class="sub">${d<0?'matured':d+' days'}</div>`:''}</td>
+        <td><div class="row-actions"><button data-action="edit" data-id="${e.id}" aria-label="Edit">✎</button><button data-action="del" data-id="${e.id}" aria-label="Delete">🗑</button></div></td></tr>`}).join('')}
+      <tr class="total"><td>Total</td><td></td><td class="r num">${inr(principal)}</td><td></td><td></td></tr>
+    </tbody></table></div>`:'<p class="sub">No FDs yet.</p>'}
+    ${fds.some(e=>!e.fd?.bank||!e.fd?.maturity)?'<div class="note-box" style="margin-top:12px">Tip: edit each FD to add bank and maturity date — maturity reminders will show up automatically. If one row holds several FDs, edit its amount and add the others as separate rows.</div>':''}
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <div class="card-h"><div><div class="eyebrow">Month by month</div><div class="h2">FD plan</div></div></div>
+    <div class="tw"><table><thead><tr><th>Month</th><th class="r">FD added this month</th><th class="r">Total saved till date</th><th class="r">% of target</th></tr></thead><tbody>
+      ${allM.map(m=>{const add=S.entries.filter(e=>e.bucket==='fd'&&e.month===m).reduce((a,e)=>a+num(e.amount),0),tot=sumBucket('fd',m);
+        return `<tr class="${m===cur?'now':''} ${m>cur?'muted':''}"><td>${mLabel(m)}${m===cur?' <span class="pill p-done" style="margin-left:6px">Now</span>':''}</td><td class="r num">${add?inr(add):'—'}</td><td class="r num">${inr(tot)}</td><td class="r num">${Math.round(pct(tot,p.t))}%</td></tr>`}).join('')}
+      <tr class="total"><td>Total saved</td><td></td><td class="r num">${inr(p.saved)}</td><td class="r num">${Math.round(pct(p.saved,p.t))}%</td></tr>
+      <tr><td><b>Still needed</b></td><td></td><td class="r num" style="color:var(--accent-2);font-weight:600">${inr(p.need)}</td><td></td></tr>
+    </tbody></table></div>
+  </section>`;
+}
+
+function vSIP(){
+  const mo=num(S.settings.sipMonthly), inv=sipInvested(), val=sipValue(), gain=val-inv;
+  const shareSum=S.sip.funds.reduce((a,f)=>a+num(f.share),0);
+  const plan=[];for(let i=0;i<num(S.settings.sipPlanMonths);i++)plan.push(addM(S.settings.sipStart,i));
+  const extra=[...new Set(S.entries.filter(e=>e.bucket==='sip').map(e=>e.month))].filter(m=>!plan.includes(m));
+  const allM=[...plan,...extra].sort(), cur=ym();
+  const started=inv>0;
+  return `
+  <div class="pagehead"><div><div class="eyebrow">Step 5 · start after FD is full</div><h2>SIP / Mutual Funds</h2></div>
+    <button class="btn primary" data-action="add" data-bucket="sip">+ Log SIP</button></div>
+  ${!started?`<div class="warn-box" style="margin-bottom:16px">SIP starts <b>${mLabel(S.settings.sipStart)}</b>. ${fdPlan().need>0?`Emergency FD still needs ${inr(fdPlan().need)} first.`:'Emergency FD is full — you can start any time.'}</div>`:''}
+  <div class="grid g-4">
+    <div class="card stat"><div class="eyebrow">Monthly SIP</div><div class="v">${inr(mo)}</div><div class="d">${num(S.settings.salary)?Math.round(mo/num(S.settings.salary)*100)+'% of salary':''}</div></div>
+    <div class="card stat"><div class="eyebrow">Invested</div><div class="v">${inr(inv)}</div><div class="d">${S.entries.filter(e=>e.bucket==='sip').length} instalments</div></div>
+    <div class="card stat"><div class="eyebrow">Current value</div>
+      <input type="number" class="num" style="margin-top:8px;font-size:16px;font-weight:600" min="0" data-bind="sip.currentValue" data-type="num" value="${num(S.sip.currentValue)||''}" placeholder="${inr(inv)}">
+      <div class="d">${S.sip.valueDate?'Updated '+dLabel(S.sip.valueDate):'Update from your app monthly'}</div></div>
+    <div class="card stat"><div class="eyebrow">Gain / loss</div><div class="v" style="color:${gain>=0?'var(--good)':'var(--bad)'}">${gain>=0?'+':''}${inr(gain)}</div><div class="d">${inv?(gain>=0?'+':'')+trim(gain/inv*100)+'%':'—'}</div></div>
+  </div>
+
+  <div class="grid g-2" style="margin-top:16px;align-items:start">
+    <section class="card">
+      <div class="card-h"><div><div class="eyebrow">Allocation</div><div class="h2">Fund split</div></div><button class="btn sm" data-action="add-fund">+ Fund</button></div>
+      <div class="tw"><table><thead><tr><th>Fund type</th><th class="r">Share %</th><th class="r">Monthly SIP</th><th></th></tr></thead><tbody>
+        ${S.sip.funds.map((f,i)=>`<tr><td style="min-width:170px"><input type="text" data-bind="sip.funds.${i}.name" value="${esc(f.name)}"></td>
+          <td class="r" style="width:90px"><input type="number" min="0" max="100" data-bind="sip.funds.${i}.share" data-type="num" value="${num(f.share)}" style="text-align:right;min-width:70px"></td>
+          <td class="r num">${inr(mo*num(f.share)/100)}</td>
+          <td><div class="row-actions"><button data-action="del-fund" data-id="${i}" aria-label="Remove fund">✕</button></div></td></tr>`).join('')}
+        <tr class="total"><td>Total</td><td class="r num" style="color:${shareSum===100?'inherit':'var(--bad)'}">${shareSum}%</td><td class="r num">${inr(mo*shareSum/100)}</td><td></td></tr>
+      </tbody></table></div>
+      ${shareSum!==100?'<div class="warn-box" style="margin-top:10px">Shares should add up to 100%.</div>':''}
+      <div style="margin-top:14px">${S.sip.funds.map((f,i)=>`<div style="display:flex;justify-content:space-between;font-size:12.5px;margin:8px 0 4px"><span>${esc(f.name)}</span><span class="num">${num(f.share)}%</span></div><div class="bar thin"><i style="width:${Math.min(100,num(f.share))}%;background:${['#3a6ea5','#1f5f45','#c2622d','#8a6d3b','#7a4f8a'][i%5]}"></i></div>`).join('')}</div>
+    </section>
+    <section class="card">
+      <div class="card-h"><div><div class="eyebrow">Plan vs actual</div><div class="h2">SIP months</div></div></div>
+      <div class="tw"><table><thead><tr><th>Month</th><th class="r">Plan</th><th class="r">Actual</th><th class="r">Total invested</th><th></th></tr></thead><tbody>
+        ${allM.map(m=>{const act=S.entries.filter(e=>e.bucket==='sip'&&e.month===m).reduce((a,e)=>a+num(e.amount),0),tot=sumBucket('sip',m),pl=plan.includes(m)?mo:0;
+          return `<tr class="${m===cur?'now':''}"><td>${mLabel(m)}</td><td class="r num">${pl?inr(pl):'—'}</td><td class="r num" style="${act&&act<pl?'color:var(--warn)':''}">${act?inr(act):'—'}</td><td class="r num">${tot?inr(tot):'—'}</td>
+          <td>${!act&&m<=cur?`<button class="btn sm" data-action="add" data-bucket="sip" data-month="${m}" data-amount="${mo}">Log</button>`:''}</td></tr>`}).join('')}
+        <tr class="total"><td>Total</td><td class="r num">${inr(mo*plan.length)}</td><td class="r num">${inv?inr(inv):'—'}</td><td class="r num">${inv?inr(inv):'—'}</td><td></td></tr>
+      </tbody></table></div>
+    </section>
+  </div>`;
+}
+
+function vPlan(){
+  const L=S.insurance.life,H=S.insurance.health,annual=num(S.settings.salary)*12;
+  const f=(label,path,val,type='text',extra='')=>`<div class="field"><label>${label}</label><input type="${type}" data-bind="${path}" ${type==='number'?'data-type="num"':''} value="${esc(val??'')}" ${extra}></div>`;
+  return `
+  <div class="pagehead"><div><div class="eyebrow">Protect first, then grow</div><h2>My steps & insurance</h2></div></div>
+  <section class="card">
+    <div class="card-h"><div><div class="eyebrow">Checklist</div><div class="h2">My steps</div></div></div>
+    <div class="tw"><table><thead><tr><th>#</th><th>What</th><th>Status</th><th>Note</th><th class="r">Target</th><th class="r">Progress</th></tr></thead><tbody>
+      ${S.steps.map((st,i)=>{const g=stepProgress(st);return `<tr>
+        <td class="num">${i+1}</td>
+        <td style="min-width:170px"><input type="text" data-bind="steps.${i}.name" value="${esc(st.name)}"></td>
+        <td style="min-width:140px"><select data-bind="steps.${i}.status">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${st.status===k?'selected':''}>${v}</option>`).join('')}</select></td>
+        <td style="min-width:200px"><input type="text" data-bind="steps.${i}.note" value="${esc(st.note)}"></td>
+        <td class="r" style="min-width:140px">${st.link?`<span class="num">${inr(g.target)}</span><div class="sub">${st.link==='fd'?'from salary × '+num(S.settings.fdMultiplier):'from bucket'}</div>`:`<input type="number" data-bind="steps.${i}.target" data-type="num" value="${num(st.target)}" style="text-align:right">`}</td>
+        <td class="r" style="min-width:120px">${g.saved!==null?`<span class="num">${Math.round(pct(g.saved,g.target))}%</span><div class="bar thin" style="margin-top:4px"><i style="width:${pct(g.saved,g.target)}%"></i></div>`:'—'}</td></tr>`}).join('')}
+    </tbody></table></div>
+  </section>
+
+  <div class="grid g-2" style="margin-top:16px;align-items:start">
+    <section class="card">
+      <div class="card-h"><div><div class="eyebrow">Step 1</div><div class="h2">Life insurance</div></div><span class="pill p-done">Active</span></div>
+      <div class="form-grid">
+        ${f('Policy','insurance.life.policy',L.policy)}
+        ${f('Nominee','insurance.life.nominee',L.nominee,'text','placeholder="Add nominee"')}
+        ${f('Cover (sum assured) ₹','insurance.life.cover',L.cover,'number')}
+        ${f('Yearly premium ₹','insurance.life.premium',L.premium,'number')}
+        ${f('Next renewal date','insurance.life.renewal',L.renewal,'date')}
+      </div>
+      ${annual&&num(L.cover)<annual*10?`<div class="warn-box" style="margin-top:14px">Cover is ${trim(num(L.cover)/annual)}× your annual in-hand pay (${short(annual)}). A common rule of thumb is 10–15× (${short(annual*10)}–${short(annual*15)}).</div>`:''}
+      ${!L.nominee?'<div class="note-box" style="margin-top:10px">Nominee is empty.</div>':''}
+    </section>
+    <section class="card">
+      <div class="card-h"><div><div class="eyebrow">Step 2</div><div class="h2">Health insurance</div></div><span class="pill ${H.bought?'p-done':'p-planned'}">${H.bought?'Bought':'Buy '+mLabel(H.planMonth)}</span></div>
+      <div class="form-grid">
+        <div class="field"><label>Bought?</label><select data-bind="insurance.health.bought" data-type="bool"><option value="false" ${!H.bought?'selected':''}>No</option><option value="true" ${H.bought?'selected':''}>Yes</option></select></div>
+        ${f('Plan to buy in','insurance.health.planMonth',H.planMonth,'month')}
+        ${f('Policy / company','insurance.health.company',H.company)}
+        ${f('Yearly premium ₹','insurance.health.premium',H.premium,'number')}
+        ${f('Cover amount ₹','insurance.health.cover',H.cover,'number')}
+        ${f('Super top-up cover ₹','insurance.health.superTopUp',H.superTopUp,'number')}
+        ${f('Renewal date','insurance.health.renewal',H.renewal,'date')}
+      </div>
+      <div class="note-box" style="margin-top:14px">Total health cover: <b class="num">${inr(num(H.cover)+num(H.superTopUp))}</b></div>
+    </section>
+  </div>`;
+}
+
+function vSettings(){
+  const s=S.settings;
+  const f=(label,path,val,type='number',hint='')=>`<div class="field"><label>${label}</label><input type="${type}" data-bind="${path}" ${type==='number'?'data-type="num"':''} value="${esc(val)}">${hint?`<span class="hint">${hint}</span>`:''}</div>`;
+  return `
+  <div class="pagehead"><div><div class="eyebrow">Inputs</div><h2>My details</h2></div></div>
+  <div class="grid g-2" style="align-items:start">
+    <section class="card">
+      <div class="card-h"><div class="h2">Plan inputs</div></div>
+      <div class="form-grid">
+        ${f('Monthly salary (in-hand) ₹','settings.salary',s.salary)}
+        ${f('Emergency FD = salary ×','settings.fdMultiplier',s.fdMultiplier,'number','FD target: '+inr(fdTarget()))}
+        ${f('Monthly SIP amount ₹','settings.sipMonthly',s.sipMonthly)}
+        ${f('FD plan length (months)','settings.fdPlanMonths',s.fdPlanMonths)}
+        ${f('FD start month','settings.fdStart',s.fdStart,'month')}
+        ${f('SIP start month','settings.sipStart',s.sipStart,'month')}
+        ${f('SIP plan length (months)','settings.sipPlanMonths',s.sipPlanMonths)}
+      </div>
+    </section>
+    <section class="card">
+      <div class="card-h"><div class="h2">Buckets</div><button class="btn sm" data-action="add-bucket">+ Bucket</button></div>
+      <p class="sub" style="margin-top:-6px">Where your savings go. Add others like Gold, PPF, NPS or a goal fund.</p>
+      ${S.buckets.map((b,i)=>`<div style="display:grid;grid-template-columns:40px 1fr 130px 32px;gap:8px;align-items:center;margin-top:10px">
+        <input type="color" data-bind="buckets.${i}.color" value="${esc(b.color)}" aria-label="Colour">
+        <input type="text" data-bind="buckets.${i}.name" value="${esc(b.name)}" aria-label="Name">
+        ${b.id==='fd'?`<span class="sub num" style="text-align:right">${short(fdTarget())} auto</span>`:b.id==='sip'?'<span class="sub" style="text-align:right">no target</span>':`<input type="number" data-bind="buckets.${i}.target" data-type="num" value="${num(b.target)||''}" placeholder="Target ₹" aria-label="Target">`}
+        ${b.core?'<span></span>':`<div class="row-actions"><button data-action="del-bucket" data-id="${b.id}" aria-label="Delete bucket">✕</button></div>`}
+      </div>`).join('')}
+    </section>
+  </div>
+  <section class="card" style="margin-top:16px">
+    <div class="card-h"><div><div class="h2">Data</div><div class="sub">Stored on your server as one JSON file${storageKind?` (${storageKind==='github'?'GitHub repo data.json':'local data/data.json'})`:''}${S.updatedAt?' · last saved '+new Date(S.updatedAt).toLocaleString('en-IN'):''}.</div></div></div>
+    <div class="toolbar">
+      <button class="btn" data-action="export-csv">Export CSV (Excel)</button>
+      <button class="btn" data-action="export-json">Download JSON backup</button>
+      <label class="btn" style="cursor:pointer">Restore from JSON<input type="file" id="importFile" accept="application/json,.json" class="sr"></label>
+      <button class="btn" data-action="logout">Log out</button>
+      <button class="btn danger" data-action="reset">Clear all data</button>
+    </div>
+  </section>`;
+}
+
+/* ================= entry dialog ================= */
+const dlg=$('#dlg'); let editingId=null;
+function openEntry(opts={}){
+  const e=opts.id?S.entries.find(x=>x.id===opts.id):null; editingId=e?e.id:null;
+  $('#dlgTitle').textContent=e?'Edit saving':'Add saving';
+  $('#f_bucket').innerHTML=S.buckets.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  $('#f_month').value=e?.month||opts.month||ym();
+  $('#f_bucket').value=e?.bucket||opts.bucket||'fd';
+  $('#f_amount').value=e?num(e.amount):(opts.amount||'');
+  $('#f_note').value=e?.note||'';
+  $('#f_bank').value=e?.fd?.bank||''; $('#f_maturity').value=e?.fd?.maturity||'';
+  toggleFD(); dlg.showModal(); setTimeout(()=>$('#f_amount').focus(),50);
+}
+function toggleFD(){$('#fdFields').hidden=$('#f_bucket').value!=='fd'}
+$('#f_bucket').addEventListener('change',toggleFD);
+$('#entryForm').addEventListener('submit',ev=>{
+  ev.preventDefault();
+  const amount=num($('#f_amount').value), month=$('#f_month').value;
+  if(!month||amount<=0){$('#f_amount').focus();return}
+  const bucketId=$('#f_bucket').value;
+  const data={month,bucket:bucketId,amount,note:$('#f_note').value.trim(),
+    fd:bucketId==='fd'?{bank:$('#f_bank').value.trim(),maturity:$('#f_maturity').value}:null};
+  if(editingId){Object.assign(S.entries.find(x=>x.id===editingId),data)}
+  else S.entries.push({id:uid(),ts:Date.now(),...data});
+  dlg.close(); save(); render();
+});
+
+/* ================= events ================= */
+function setPath(path,val){const k=path.split('.');let o=S;for(let i=0;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=val}
+document.addEventListener('click',ev=>{
+  const a=ev.target.closest('[data-action]'); if(!a)return;
+  const act=a.dataset.action,id=a.dataset.id;
+  switch(act){
+    case 'tab': tab=id; lsSet(KEY_TAB,id); render(); window.scrollTo({top:0}); break;
+    case 'add': openEntry({month:a.dataset.month,bucket:a.dataset.bucket,amount:a.dataset.amount}); break;
+    case 'edit': openEntry({id}); break;
+    case 'del': {const e=S.entries.find(x=>x.id===id); if(e&&confirm(`Delete ${inr(num(e.amount))} (${bucket(e.bucket).name}, ${mLabel(e.month)})?`)){S.entries=S.entries.filter(x=>x.id!==id);save();render()} break;}
+    case 'close': dlg.close(); break;
+    case 'theme': {const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');lsSet(KEY_THEME,cur==='dark'?'light':'dark');applyTheme();break;}
+    case 'add-fund': S.sip.funds.push({name:'New fund',share:0}); save(); render(); break;
+    case 'del-fund': S.sip.funds.splice(+id,1); save(); render(); break;
+    case 'add-bucket': {const colors=['#8a6d3b','#7a4f8a','#2f7f86','#a0453c','#5c6b2f'];S.buckets.push({id:'b'+uid(),name:'New bucket',color:colors[S.buckets.length%colors.length],target:0});save();render();break;}
+    case 'del-bucket': {const n=S.entries.filter(e=>e.bucket===id).length; if(n){alert(`This bucket has ${n} entr${n>1?'ies':'y'}. Move or delete them first.`);break} S.buckets=S.buckets.filter(b=>b.id!==id);save();render();break;}
+    case 'export-json': download(`full-feature-plan-${ym()}.json`,JSON.stringify(S,null,2),'application/json'); break;
+    case 'export-csv': exportCSV(); break;
+    case 'logout': lsSet(KEY_PW,null); lsSet(KEY_CACHE,null); renderLogin(); break;
+    case 'reset': if(confirm('Delete ALL data (entries, insurance, settings)? Download a JSON backup first if unsure.')){S=SEED();save();render()} break;
+  }
+});
+document.addEventListener('change',ev=>{
+  const el=ev.target;
+  if(el.dataset.bind){
+    let v=el.value; if(el.dataset.type==='num')v=num(v); if(el.dataset.type==='bool')v=v==='true';
+    setPath(el.dataset.bind,v);
+    if(el.dataset.bind==='sip.currentValue')S.sip.valueDate=new Date().toISOString().slice(0,10);
+    save(); render(); return;
+  }
+  if(el.dataset.filter){logFilter[el.dataset.filter]=el.value;render();return}
+  if(el.id==='importFile'&&el.files[0]){
+    el.files[0].text().then(t=>{const d=JSON.parse(t);if(!d||!Array.isArray(d.entries))throw new Error('Not a plan backup');
+      if(confirm('Replace current data with this backup?')){S=normalize(d);save();render()}}).catch(e=>alert('Could not restore: '+e.message));
+  }
+});
+document.addEventListener('pointermove',ev=>{
+  const g=ev.target.closest&&ev.target.closest('[data-tip]'),tip=$('#tip');
+  if(!g){tip.classList.remove('on');return}
+  tip.innerHTML=g.dataset.tip; tip.classList.add('on');
+  const w=tip.offsetWidth,h=tip.offsetHeight;
+  let x=ev.clientX+14,y=ev.clientY-h-10; if(x+w>innerWidth-8)x=ev.clientX-w-14; if(y<8)y=ev.clientY+16;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+});
+document.addEventListener('scroll',()=>$('#tip').classList.remove('on'),{passive:true});
+
+function download(name,text,type){const u=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+function exportCSV(){
+  const q=v=>{const s=String(v??'');return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+  const rows=[['Month','Bucket','Amount','Note','Bank','Maturity']];
+  [...S.entries].sort((a,b)=>a.month.localeCompare(b.month)).forEach(e=>rows.push([mLabel(e.month),bucket(e.bucket).name,num(e.amount),e.note,e.fd?.bank,e.fd?.maturity]));
+  download(`full-feature-plan-${ym()}.csv`,'﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n'),'text/csv');
+}
+function applyTheme(){const t=lsGet(KEY_THEME);if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;
+  const dark=t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches;document.querySelector('meta[name=theme-color]').content=dark?'#111714':'#f3eee4'}
+
+boot();
+})();
+</script>
+</body>
+</html>
