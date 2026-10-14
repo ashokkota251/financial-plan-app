@@ -247,6 +247,10 @@ dialog::backdrop{background:rgba(17,23,20,.45);backdrop-filter:blur(3px)}
 .login h1 em{color:var(--accent);font-weight:400}
 .err{color:var(--bad);font-size:13px;min-height:18px}
 .loading{min-height:60vh;display:grid;place-items:center;color:var(--ink-3)}
+.readonly [data-action="add"],.readonly [data-action="edit"],.readonly [data-action="del"],.readonly [data-action="add-fund"],.readonly [data-action="del-fund"],.readonly [data-action="add-bucket"],.readonly [data-action="del-bucket"],.readonly [data-action="reset"],.readonly .fab,.readonly label.btn{display:none!important}
+.readonly main input,.readonly main select{pointer-events:none;opacity:.85}
+.ro-banner{display:none}
+.readonly .ro-banner{display:block;max-width:1120px;margin:14px auto 0;padding:0 16px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
@@ -342,33 +346,24 @@ function normalize(d){
 /* ================= server sync ================= */
 const KEY_PW='ffp:key', KEY_CACHE='ffp:cache', KEY_TAB='ffp:tab', KEY_THEME='ffp:theme';
 let S=null, syncState='ok', syncMsg='Saved', saveTimer=null, storageKind='';
-// GitHub Pages has no server → read/write data.json in a private repo straight from the browser.
-const GH_MODE=location.hostname.endsWith('github.io')||lsGet('ffp:mode')==='github';
-const GH_API=lsGet('ffp:ghapi')||'https://api.github.com';
-const KEY_REPO='ffp:ghrepo', DEFAULT_REPO='ashokkota251/ffp-data';
-const b64enc=s=>{const b=new TextEncoder().encode(s);let bin='';for(let i=0;i<b.length;i+=0x8000)bin+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(bin)};
-const b64dec=s=>{const bin=atob(String(s||'').replace(/\s/g,''));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))};
-async function ghApi(method,body){
-  const repo=lsGet(KEY_REPO)||DEFAULT_REPO, url=`${GH_API}/repos/${repo}/contents/data.json`;
-  const h={Authorization:`Bearer ${lsGet(KEY_PW)||''}`,Accept:'application/vnd.github+json'};
-  const fail=(r,what)=>{const e=new Error(r.status===401||r.status===403?'GitHub token rejected — check it has Contents: Read and write on '+repo:r.status===404&&what==='repo'?'Repo not found: '+repo:`GitHub ${what} failed (${r.status})`);if(r.status===401||r.status===403)e.status=401;throw e};
-  const get=async()=>{const r=await fetch(`${url}?t=${Date.now()}`,{headers:h,cache:'no-store'});
-    if(r.status===404){const rr=await fetch(`${GH_API}/repos/${repo}`,{headers:h,cache:'no-store'});if(!rr.ok)fail(rr,'repo');return {data:null}}
-    if(!r.ok)fail(r,'read'); const j=await r.json(); return {data:JSON.parse(b64dec(j.content)||'null'),sha:j.sha}};
-  if(method==='GET'){const g=await get();return {data:g.data,storage:'github'}}
+// GitHub Pages / opened as a file: no server → data lives in this browser (localStorage). No login.
+const LOCAL_MODE=location.hostname.endsWith('github.io')||location.protocol==='file:'||lsGet('ffp:mode')==='local';
+const KEY_LOCAL='ffp:data';
+let READONLY=false;
+async function localApi(method,body){
+  if(method==='GET'){
+    // 1) data/data.json committed in the repo → view-only
+    try{const r=await fetch('data/data.json?t='+Date.now(),{cache:'no-store'});
+      if(r.ok){const d=await r.json();if(d&&typeof d==='object'){READONLY=true;return {data:d,storage:'repo'}}}}catch(e){}
+    // 2) fallback: this browser
+    let d=null;try{d=JSON.parse(lsGet(KEY_LOCAL)||'null')}catch(e){}return {data:d,storage:'browser'}}
+  if(READONLY)return {ok:true,updatedAt:body.data.updatedAt};
   const data={...body.data,updatedAt:new Date().toISOString()};
-  for(let i=0;i<3;i++){
-    const g=await get();
-    const r=await fetch(url,{method:'PUT',headers:{...h,'Content-Type':'application/json'},
-      body:JSON.stringify({message:'Update savings data '+data.updatedAt,content:b64enc(JSON.stringify(data,null,2)),...(g.sha?{sha:g.sha}:{})})});
-    if(r.ok)return {ok:true,updatedAt:data.updatedAt};
-    if(r.status===409||r.status===422)continue;
-    fail(r,'write');
-  }
-  throw new Error('GitHub write conflict — try again');
+  try{localStorage.setItem(KEY_LOCAL,JSON.stringify(data))}catch(e){throw new Error('Browser storage is full or blocked')}
+  return {ok:true,updatedAt:data.updatedAt};
 }
 async function api(method,body){
-  if(GH_MODE)return ghApi(method,body);
+  if(LOCAL_MODE)return localApi(method,body);
   const r=await fetch('/api/data',{method,headers:{'content-type':'application/json','x-app-key':lsGet(KEY_PW)||''},body:body?JSON.stringify(body):undefined,cache:'no-store'});
   let j={}; try{j=await r.json()}catch(e){}
   if(!r.ok){const e=new Error(j.error||('HTTP '+r.status));e.status=r.status;throw e}
@@ -376,10 +371,11 @@ async function api(method,body){
 }
 function setSync(s,msg){syncState=s;syncMsg=msg;const el=$('#sync');if(el){el.dataset.s=s;el.lastChild.textContent=msg}}
 function save(){
+  if(READONLY){setSync('ok','View only');return}
   lsSet(KEY_CACHE,JSON.stringify(S));
   setSync('saving','Saving…');
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(flush,GH_MODE?1500:500);
+  saveTimer=setTimeout(flush,LOCAL_MODE?150:500);
 }
 async function flush(){
   try{const r=await api('PUT',{data:S});S.updatedAt=r.updatedAt;lsSet(KEY_CACHE,JSON.stringify(S));setSync('ok','Saved');}
@@ -390,16 +386,17 @@ window.addEventListener('beforeunload',e=>{if(syncState!=='ok'){e.preventDefault
 
 async function boot(){
   applyTheme();
-  if(!lsGet(KEY_PW))return renderLogin();
+  if(!LOCAL_MODE&&!lsGet(KEY_PW))return renderLogin();
   $('#app').innerHTML='<div class="loading">Loading your plan…</div>';
   try{
     const r=await api('GET'); storageKind=r.storage||'';
     if(r.data){S=normalize(r.data)}
-    else{S=SEED();await api('PUT',{data:S})}
+    else{S=SEED();if(!READONLY)await api('PUT',{data:S})}
     lsSet(KEY_CACHE,JSON.stringify(S));
+    if(READONLY){document.body.classList.add('readonly');syncMsg='View only'}
     renderShell();
   }catch(e){
-    if(e.status===401)return logout(GH_MODE?e.message:'Wrong password.');
+    if(e.status===401)return logout('Wrong password.');
     if(e.status===500&&/APP_PASSWORD/.test(e.message))return renderLogin(e.message);
     const cached=lsGet(KEY_CACHE);
     if(cached){S=normalize(JSON.parse(cached));renderShell();setSync('error','Offline — showing last copy');}
@@ -412,15 +409,12 @@ function renderLogin(msg=''){
   $('#app').innerHTML=`<div class="login"><form class="card" id="loginForm">
     <div class="eyebrow">Personal savings ledger</div>
     <h1>Full Feature <em>Plan</em></h1>
-    ${GH_MODE?`<p class="sub" style="margin:0 0 18px">Your data is saved as <b>data.json</b> in a private GitHub repo. Sign in with a fine-grained token (Contents: Read and write on that repo only).</p>
-    <div class="field" style="margin-bottom:12px"><label for="repo">Data repo</label><input type="text" id="repo" value="${esc(lsGet(KEY_REPO)||DEFAULT_REPO)}" required placeholder="owner/repo"></div>
-    <div class="field"><label for="pw">GitHub token</label><input type="password" id="pw" autocomplete="off" required autofocus placeholder="github_pat_…"></div>`
-    :`<p class="sub" style="margin:0 0 18px">Enter your app password to open your plan.</p>
-    <div class="field"><label for="pw">Password</label><input type="password" id="pw" autocomplete="current-password" required autofocus></div>`}
+    <p class="sub" style="margin:0 0 18px">Enter your app password to open your plan.</p>
+    <div class="field"><label for="pw">Password</label><input type="password" id="pw" autocomplete="current-password" required autofocus></div>
     <div class="err" style="margin:8px 0">${esc(msg)}</div>
     <button class="btn primary" style="width:100%;justify-content:center">Open</button>
   </form></div>`;
-  $('#loginForm').addEventListener('submit',e=>{e.preventDefault();if(GH_MODE)lsSet(KEY_REPO,$('#repo').value.trim());lsSet(KEY_PW,$('#pw').value.trim());boot()});
+  $('#loginForm').addEventListener('submit',e=>{e.preventDefault();lsSet(KEY_PW,$('#pw').value.trim());boot()});
 }
 
 /* ================= derived numbers ================= */
@@ -484,6 +478,7 @@ function renderShell(){
       <button class="btn primary sm addTop" data-action="add">+ Add saving</button>
     </div>
   </div></header>
+  <div class="ro-banner"><div class="note-box">View only — data from <b>data/data.json</b> in the repo. To update: run <b>node server.js</b> on your PC, add savings, then <b>git push</b>.</div></div>
   <main id="view"></main>
   <button class="fab" data-action="add" aria-label="Add saving"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
   <nav class="bnav" aria-label="Sections">${TABS.map(([id,l,ic])=>`<button data-action="tab" data-id="${id}" aria-current="${tab===id}"><svg viewBox="0 0 24 24" fill="currentColor">${ic}</svg>${l.split(' ')[0]}</button>`).join('')}</nav>`;
@@ -785,12 +780,12 @@ function vSettings(){
     </section>
   </div>
   <section class="card" style="margin-top:16px">
-    <div class="card-h"><div><div class="h2">Data</div><div class="sub">Stored on your server as one JSON file${storageKind?` (${storageKind==='github'?(GH_MODE?esc(lsGet(KEY_REPO)||DEFAULT_REPO):'GitHub repo')+' / data.json':'local data/data.json'})`:''}${S.updatedAt?' · last saved '+new Date(S.updatedAt).toLocaleString('en-IN'):''}.</div></div></div>
+    <div class="card-h"><div><div class="h2">Data</div><div class="sub">${storageKind==='repo'?'Loaded from data/data.json in the repo (view only)':storageKind==='browser'?'Saved in this browser only — use Download JSON backup / Restore to move it to another device':'Stored on your server as one JSON file'+(storageKind?` (${storageKind==='github'?'GitHub repo data.json':'data/data.json'})`:'')}${S.updatedAt?' · last saved '+new Date(S.updatedAt).toLocaleString('en-IN'):''}.</div></div></div>
     <div class="toolbar">
       <button class="btn" data-action="export-csv">Export CSV (Excel)</button>
       <button class="btn" data-action="export-json">Download JSON backup</button>
       <label class="btn" style="cursor:pointer">Restore from JSON<input type="file" id="importFile" accept="application/json,.json" class="sr"></label>
-      <button class="btn" data-action="logout">Log out</button>
+      ${LOCAL_MODE?'':'<button class="btn" data-action="logout">Log out</button>'}
       <button class="btn danger" data-action="reset">Clear all data</button>
     </div>
   </section>`;

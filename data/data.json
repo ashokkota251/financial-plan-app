@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "settings": {
+    "salary": 260000,
+    "fdMultiplier": 4,
+    "sipMonthly": 20000,
+    "fdStart": "2026-10",
+    "sipStart": "2026-10",
+    "fdPlanMonths": 12,
+    "sipPlanMonths": 12
+  },
+  "buckets": [
+    {
+      "id": "fd",
+      "name": "Emergency FD",
+      "color": "#1f5f45",
+      "target": 0,
+      "core": true
+    },
+    {
+      "id": "es",
+      "name": "Emergency Savings",
+      "color": "#c2622d",
+      "target": 0,
+      "core": true
+    },
+    {
+      "id": "sip",
+      "name": "SIP / Mutual Funds",
+      "color": "#3a6ea5",
+      "target": 0,
+      "core": true
+    }
+  ],
+  "entries": [
+    {
+      "id": "mv84aydt67h8g",
+      "ts": 1791982821521,
+      "month": "2026-10",
+      "bucket": "fd",
+      "amount": 100000,
+      "note": "HDFC",
+      "fd": {
+        "bank": "HDFC",
+        "maturity": "2027-10-14"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "name": "Life Insurance",
+      "status": "todo",
+      "note": "",
+      "target": 0,
+      "link": ""
+    },
+    {
+      "id": "s2",
+      "name": "Health Insurance",
+      "status": "todo",
+      "note": "",
+      "target": 0,
+      "link": ""
+    },
+    {
+      "id": "s3",
+      "name": "Emergency FD",
+      "status": "todo",
+      "note": "",
+      "target": 0,
+      "link": "fd"
+    },
+    {
+      "id": "s4",
+      "name": "Emergency Savings",
+      "status": "todo",
+      "note": "",
+      "target": 0,
+      "link": "es"
+    },
+    {
+      "id": "s5",
+      "name": "SIP / Mutual Funds",
+      "status": "todo",
+      "note": "",
+      "target": 0,
+      "link": ""
+    }
+  ],
+  "sip": {
+    "funds": [],
+    "currentValue": 0,
+    "valueDate": ""
+  },
+  "insurance": {
+    "life": {
+      "policy": "",
+      "cover": 0,
+      "premium": 0,
+      "renewal": "",
+      "nominee": ""
+    },
+    "health": {
+      "bought": false,
+      "company": "",
+      "cover": 0,
+      "superTopUp": 0,
+      "premium": 0,
+      "planMonth": "",
+      "renewal": ""
+    }
+  },
+  "updatedAt": "2026-10-14T13:01:38.262Z"
+}

@@ -28,6 +28,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html _site/
+          if [ -f data/data.json ]; then mkdir -p _site/data && cp data/data.json _site/data/; fi
           touch _site/.nojekyll
 
       - uses: actions/configure-pages@v5
